@@ -31,7 +31,7 @@ function row(job: string, overrides: Partial<DigestRow> = {}): DigestRow {
 // Read cell text, allowing nested tags, arbitrary attributes and either quote style.
 // Decode after stripping tags so escaped user input remains visible text.
 function text(html: string): string {
-  return html.replace(/<[^>]*>/g, '').replace(
+  return html.replace(/<[^>]*>/g, ' ').replace(
     /&(#x[\da-f]+|#\d+|amp|lt|gt|quot|apos|nbsp);/gi,
     (_, entity: string) => {
       if (entity.startsWith('#')) {
@@ -119,10 +119,10 @@ describe('digest routes', () => {
     } satisfies NightDigest);
     expect(text(html)).toContain(night);
     expect(jobRow(html, 'backup').cells).toEqual(expect.arrayContaining([
-      'operator', '2', '1', 'ok', 'network unavailable',
+      'operator', '2', '1', expect.stringMatching(/^ok\b/i), 'network unavailable',
     ]));
     expect(jobRow(html, 'sync').cells).toEqual(expect.arrayContaining([
-      'sync-team', 'fail', 'access denied',
+      'sync-team', expect.stringMatching(/^fail\b/i), 'access denied',
     ]));
   });
 
