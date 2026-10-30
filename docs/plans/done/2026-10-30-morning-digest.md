@@ -1,6 +1,6 @@
 ---
 plan: morning-digest
-status: ready
+status: done
 owner: rook
 opened: 2026-10-29
 ---
@@ -77,3 +77,22 @@ page again with `LANE_MARKER` unset (the banner reads "no marker set") and uploa
 link. Move this plan to `docs/plans/done/` with its issue list.
 
 Done when: the preview link no longer shows the lane marker.
+
+## Delivery record
+
+- Reader and shared types: https://github.com/konradnowak2/Mega_Challange/issues/1
+- HTML page: https://github.com/konradnowak2/Mega_Challange/issues/2
+- JSON API: https://github.com/konradnowak2/Mega_Challange/issues/3
+- Board links and counts: https://github.com/konradnowak2/Mega_Challange/issues/4
+- Route tests: https://github.com/konradnowak2/Mega_Challange/issues/5
+- Public preview and review: https://github.com/konradnowak2/Mega_Challange/issues/6
+- Cleanup and archive: https://github.com/konradnowak2/Mega_Challange/issues/7
+
+Verification: 36 tests and TypeScript checks passed locally and in GitHub Actions.
+Browser inspection confirmed HTML/JSON job-order parity and both board links.
+The course reviewer confirmed inspection before cleanup; the human separately
+approved publishing and then replacing the page without its marker.
+
+Preview: https://konradnowak2.github.io/Mega_Challange/
+Marker-free deployment: https://github.com/konradnowak2/Mega_Challange/actions/runs/41017511150
+The original URL was fetched after deployment and displays "no marker set".
