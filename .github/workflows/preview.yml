@@ -1,0 +1,61 @@
+name: Publish review preview
+
+on:
+  workflow_dispatch:
+    inputs:
+      marker:
+        description: 'Public lane marker; leave empty only after cleanup is approved'
+        required: false
+        default: ''
+        type: string
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  preview:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Install dependencies
+        run: npm exec --yes --package=pnpm@10.34.9 -- pnpm install --frozen-lockfile
+      - name: Verify
+        run: |
+          npm exec --yes --package=pnpm@10.34.9 -- pnpm test
+          npm exec --yes --package=pnpm@10.34.9 -- pnpm typecheck
+      - name: Export HTML from running rig
+        env:
+          LANE_ID: lane-07
+          LANE_MARKER: ${{ inputs.marker }}
+          PORT: '8787'
+        run: |
+          mkdir -p "$RUNNER_TEMP/preview"
+          npm exec --yes --package=pnpm@10.34.9 -- pnpm start > "$RUNNER_TEMP/rig.log" 2>&1 &
+          server=$!
+          trap 'kill "$server" 2>/dev/null || true' EXIT
+          for attempt in {1..30}; do
+            if curl --fail --silent http://127.0.0.1:8787/health > /dev/null; then
+              break
+            fi
+            sleep 1
+          done
+          curl --fail --silent --show-error http://127.0.0.1:8787/digest/2026-10-28 -o "$RUNNER_TEMP/preview/index.html"
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: ${{ runner.temp }}/preview
+      - name: Deploy
+        id: deployment
+        uses: actions/deploy-pages@v4
